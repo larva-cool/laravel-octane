@@ -1,0 +1,59 @@
+#!/usr/bin/env php
+<?php
+
+use Workerman\Connection\TcpConnection;
+use Workerman\Worker as WorkermanWorker;
+
+$basePath = require __DIR__.'/bootstrap.php';
+
+$serverStateFilepath = $_SERVER['argv'][2] ?? $_SERVER['APP_BASE_PATH'].'/storage/logs/octane-server-state.json';
+if (!is_file($serverStateFilepath)) {
+    exit(-1);
+}
+$serverState = json_decode(file_get_contents($serverStateFilepath ?? ''), true);
+WorkermanWorker::$onMasterReload = function () {
+    if (function_exists('opcache_get_status')) {
+        if ($status = opcache_get_status()) {
+            if (isset($status['scripts']) && $scripts = $status['scripts']) {
+                foreach (array_keys($scripts) as $file) {
+                    opcache_invalidate($file, true);
+                }
+            }
+        }
+    }
+};
+
+WorkermanWorker::$pidFile = $httpConfig['pidFile'];
+WorkermanWorker::$stdoutFile = $httpConfig['stdoutFile'];
+WorkermanWorker::$logFile = $httpConfig['logFile'];
+WorkermanWorker::$daemonize = $serverState['state']['daemon'];
+TcpConnection::$defaultMaxPackageSize = $httpConfig['maxPackageSize'];
+
+/*
+|--------------------------------------------------------------------------
+| Start The Octane Worker
+|--------------------------------------------------------------------------
+|
+| Next we will start the Octane worker, which is a long running process to
+| handle incoming requests to the application. Octane can intercept the
+| incoming requests and proxy them to the Laravel application for us.
+|
+*/
+
+// Windows does not support custom processes.
+if (\DIRECTORY_SEPARATOR === '/') {
+    $process = $workermanConfig['process'] ?? [];
+    foreach ($process as $process_name => $config) {
+        if ($config['enable'] ?? true) {
+            worker_start($process_name, $config);
+        }
+    }
+}
+
+if (!empty($workermanConfig['eventLoopClass'])) {
+    if(class_exists($workermanConfig['eventLoopClass'])) {
+        WorkermanWorker::$eventLoopClass = $workermanConfig['eventLoopClass'];
+    }
+}
+
+WorkermanWorker::runAll();

@@ -8,6 +8,8 @@ use Laravel\Octane\RoadRunner\ServerProcessInspector as RoadRunnerServerProcessI
 use Laravel\Octane\RoadRunner\ServerStateFile as RoadRunnerServerStateFile;
 use Laravel\Octane\Swoole\ServerProcessInspector as SwooleServerProcessInspector;
 use Laravel\Octane\Swoole\ServerStateFile as SwooleServerStateFile;
+use Laravel\Octane\Workerman\ServerProcessInspector as WorkermanServerProcessInspector;
+use Laravel\Octane\Workerman\ServerStateFile as WorkermanServerStateFile;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 #[AsCommand(name: 'octane:stop')]
@@ -40,6 +42,7 @@ class StopCommand extends Command
             'swoole' => $this->stopSwooleServer(),
             'roadrunner' => $this->stopRoadRunnerServer(),
             'frankenphp' => $this->stopFrankenPhpServer(),
+            'workerman' => $this->stopWorkermanServer(),
             default => $this->invalidServer($server),
         };
     }
@@ -122,6 +125,32 @@ class StopCommand extends Command
         $inspector->stopServer();
 
         app(FrankenPhpStateFile::class)->delete();
+
+        return 0;
+    }
+
+    /**
+     * Stop the Workerman server for Octane.
+     *
+     * @return int
+     */
+    protected function stopWorkermanServer()
+    {
+        $inspector = app(WorkermanServerProcessInspector::class);
+
+        if (! $inspector->serverIsRunning()) {
+            app(WorkermanServerStateFile::class)->delete();
+
+            $this->components->error('Workerman server is not running.');
+
+            return 1;
+        }
+
+        $this->components->info('Stopping server...');
+
+        $inspector->stopServer();
+
+        app(WorkermanServerStateFile::class)->delete();
 
         return 0;
     }

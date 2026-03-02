@@ -5,6 +5,7 @@ namespace Laravel\Octane\Commands;
 use Laravel\Octane\FrankenPhp\ServerProcessInspector as FrankenPhpServerProcessInspector;
 use Laravel\Octane\RoadRunner\ServerProcessInspector as RoadRunnerServerProcessInspector;
 use Laravel\Octane\Swoole\ServerProcessInspector as SwooleServerProcessInspector;
+use Laravel\Octane\Workerman\ServerProcessInspector as WorkermanServerProcessInspector;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 #[AsCommand(name: 'octane:reload')]
@@ -37,6 +38,7 @@ class ReloadCommand extends Command
             'swoole' => $this->reloadSwooleServer(),
             'roadrunner' => $this->reloadRoadRunnerServer(),
             'frankenphp' => $this->reloadFrankenPhpServer(),
+            'workerman' => $this->reloadWorkermanServer(),
             default => $this->invalidServer($server),
         };
     }
@@ -107,6 +109,27 @@ class ReloadCommand extends Command
         return 0;
     }
 
+    /**
+     * Reload the FrankenPHP server for Octane.
+     *
+     * @return int
+     */
+    protected function reloadWorkermanServer(){
+        $inspector = app(WorkermanServerProcessInspector::class);
+
+        if (! $inspector->serverIsRunning()) {
+            $this->components->error('Octane server is not running.');
+
+            return 1;
+        }
+
+        $this->components->info('Reloading workers...');
+
+        $inspector->reloadServer();
+
+        return 0;
+    }
+    
     /**
      * Inform the user that the server type is invalid.
      *

@@ -53,6 +53,7 @@ class StartCommand extends Command implements SignalableCommandInterface
             'swoole' => $this->startSwooleServer(),
             'roadrunner' => $this->startRoadRunnerServer(),
             'frankenphp' => $this->startFrankenPhpServer(),
+            'workerman' => $this->startWorkermanServer(),
             default => $this->invalidServer($server),
         };
     }
@@ -110,6 +111,26 @@ class StartCommand extends Command implements SignalableCommandInterface
             '--workers' => $this->option('workers') ?: config('octane.workers', 'auto'),
             '--max-requests' => $this->option('max-requests') ?: config('octane.max_requests', 500),
             '--caddyfile' => $this->option('caddyfile'),
+            '--https' => $this->option('https'),
+            '--http-redirect' => $this->option('http-redirect'),
+            '--watch' => $this->option('watch'),
+            '--poll' => $this->option('poll'),
+            '--log-level' => $this->option('log-level'),
+        ]);
+    }
+
+    /**
+     * Start the Workerman server for Octane.
+     *
+     * @return int
+     */
+    protected function startWorkermanServer()
+    {
+        return $this->call('octane:workerman', [
+            '--host' => $this->getHost(),
+            '--port' => $this->getPort(),
+            '--workers' => $this->option('workers') ?: config('octane.workers', 'auto'),
+            '--max-requests' => $this->option('max-requests') ?: config('octane.max_requests', 500),
             '--https' => $this->option('https'),
             '--http-redirect' => $this->option('http-redirect'),
             '--watch' => $this->option('watch'),

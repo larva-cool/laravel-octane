@@ -5,6 +5,7 @@ namespace Laravel\Octane\Commands;
 use Laravel\Octane\FrankenPhp\ServerProcessInspector as FrankenPhpServerProcessInspector;
 use Laravel\Octane\RoadRunner\ServerProcessInspector as RoadRunnerServerProcessInspector;
 use Laravel\Octane\Swoole\ServerProcessInspector as SwooleServerProcessInspector;
+use Laravel\Octane\Workerman\ServerProcessInspector as WorkermanServerProcessInspector;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 #[AsCommand(name: 'octane:status')]
@@ -37,6 +38,7 @@ class StatusCommand extends Command
             'swoole' => $this->isSwooleServerRunning(),
             'roadrunner' => $this->isRoadRunnerServerRunning(),
             'frankenphp' => $this->isFrankenPhpServerRunning(),
+            'workerman' => $this->isWorkermanServerRunning(),
             default => $this->invalidServer($server),
         };
 
@@ -77,6 +79,17 @@ class StatusCommand extends Command
     protected function isFrankenPhpServerRunning()
     {
         return app(FrankenPhpServerProcessInspector::class)
+            ->serverIsRunning();
+    }
+
+    /**
+     * Check if the Workerman server is running.
+     *
+     * @return bool
+     */
+    protected function isWorkermanServerRunning()
+    {
+        return app(WorkermanServerProcessInspector::class)
             ->serverIsRunning();
     }
 

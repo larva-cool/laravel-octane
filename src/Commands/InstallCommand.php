@@ -7,14 +7,14 @@ use Illuminate\Support\Str;
 use Laravel\Octane\Swoole\SwooleExtension;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Throwable;
-
 use function Laravel\Prompts\select;
 
 #[AsCommand(name: 'octane:install')]
 class InstallCommand extends Command
 {
     use Concerns\InstallsFrankenPhpDependencies,
-        Concerns\InstallsRoadRunnerDependencies;
+        Concerns\InstallsRoadRunnerDependencies,
+        Concerns\InstallsWorkermanDependencies;
 
     /**
      * The command's signature.
@@ -41,7 +41,7 @@ class InstallCommand extends Command
     {
         $server = $this->option('server') ?: select(
             label: 'Which application server you would like to use?',
-            options: ['frankenphp', 'roadrunner', 'swoole'],
+            options: ['frankenphp', 'roadrunner', 'swoole', 'workerman'],
             default: 'frankenphp'
         );
 
@@ -49,6 +49,7 @@ class InstallCommand extends Command
             'swoole' => $this->installSwooleServer(),
             'roadrunner' => $this->installRoadRunnerServer(),
             'frankenphp' => $this->installFrankenPhpServer(),
+            'workerman' => $this->installWorkermanServer(),
             default => $this->invalidServer($server),
         }, function ($installed) use ($server) {
             if ($installed) {
@@ -124,6 +125,20 @@ class InstallCommand extends Command
     {
         if (! resolve(SwooleExtension::class)->isInstalled()) {
             $this->components->warn('The Swoole extension is missing.');
+        }
+
+        return true;
+    }
+
+    /**
+     * Install the workerman dependencies.
+     *
+     * @return bool
+     */
+    public function installWorkermanServer()
+    {
+        if (! $this->ensureWorkermanPackageIsInstalled()) {
+            $this->components->warn('The Workerman extension is missing.');
         }
 
         return true;

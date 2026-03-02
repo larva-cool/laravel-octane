@@ -27,6 +27,8 @@ use Laravel\Octane\Swoole\ServerStateFile as SwooleServerStateFile;
 use Laravel\Octane\Swoole\SignalDispatcher;
 use Laravel\Octane\Swoole\SwooleCoroutineDispatcher;
 use Laravel\Octane\Swoole\SwooleTaskDispatcher;
+use Laravel\Octane\Workerman\ServerProcessInspector as WorkermanServerProcessInspector;
+use Laravel\Octane\Workerman\ServerStateFile as WorkermanServerStateFile;
 
 class OctaneServiceProvider extends ServiceProvider
 {
@@ -77,6 +79,30 @@ class OctaneServiceProvider extends ServiceProvider
             return new FrankenPhpServerProcessInspector(
                 $app->make(FrankenPhpServerStateFile::class)
             );
+        });
+
+        $this->app->bind(FrankenPhpServerStateFile::class, function ($app) {
+            return new FrankenPhpServerStateFile($app['config']->get(
+                'octane.state_file',
+                storage_path('logs/octane-server-state.json')
+            ));
+        });
+
+        $this->app->bind(FrankenPhpServerProcessInspector::class, function ($app) {
+            return new FrankenPhpServerProcessInspector(
+                $app->make(FrankenPhpServerStateFile::class)
+            );
+        });
+
+        $this->app->bind(WorkermanServerStateFile::class, function ($app) {
+            return new WorkermanServerStateFile($app['config']->get(
+                'octane.state_file',
+                storage_path('logs/octane-server-state.json')
+            ));
+        });
+
+        $this->app->bind(WorkermanServerProcessInspector::class, function ($app) {
+            return new WorkermanServerProcessInspector($app->make(WorkermanServerStateFile::class));
         });
 
         $this->app->bind(FrankenPhpServerStateFile::class, function ($app) {
