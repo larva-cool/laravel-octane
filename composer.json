@@ -1,11 +1,11 @@
 {
-    "name": "laravel/octane",
+    "name": "larva/laravel-octane",
     "description": "Supercharge your Laravel application's performance.",
     "keywords": ["laravel", "octane", "roadrunner", "swoole", "frankenphp"],
     "license": "MIT",
     "support": {
-        "issues": "https://github.com/laravel/octane/issues",
-        "source": "https://github.com/laravel/octane"
+        "issues": "https://github.com/larva/laravel-octane/issues",
+        "source": "https://github.com/larva/laravel-octane"
     },
     "authors": [
         {
@@ -35,7 +35,8 @@
         "phpstan/phpstan": "^2.1.7",
         "phpunit/phpunit": "^10.4|^11.5",
         "spiral/roadrunner-cli": "^2.6.0",
-        "spiral/roadrunner-http": "^3.3.0"
+        "spiral/roadrunner-http": "^3.3.0",
+        "workerman/workerman": "^5.1"
     },
     "bin": [
         "bin/roadrunner-worker",
