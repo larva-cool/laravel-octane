@@ -30,7 +30,7 @@ class ServerProcessInspector
 
     public function writeProcessId(): bool
     {
-        $pid = @file_get_contents(config('workerman.http.pidFile'));
+        $pid = @file_get_contents(Worker::$pidFile);
 
         if ($pid) {
             $this->serverStateFile->writeProcessId($pid);
@@ -40,6 +40,12 @@ class ServerProcessInspector
         return false;
     }
 
+    /**
+     * 获取服务器进程接口
+     * @param $mode
+     * @param  array  $args
+     * @return \Symfony\Component\Process\Process
+     */
     public function getServer($mode, array $args = [])
     {
         $command = [

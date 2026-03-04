@@ -102,7 +102,9 @@ class OctaneServiceProvider extends ServiceProvider
         });
 
         $this->app->bind(WorkermanServerProcessInspector::class, function ($app) {
-            return new WorkermanServerProcessInspector($app->make(WorkermanServerStateFile::class));
+            return new WorkermanServerProcessInspector(
+                $app->make(WorkermanServerStateFile::class),
+                new SymfonyProcessFactory);
         });
 
         $this->app->bind(FrankenPhpServerStateFile::class, function ($app) {
@@ -214,6 +216,7 @@ class OctaneServiceProvider extends ServiceProvider
                 Commands\StartRoadRunnerCommand::class,
                 Commands\StartSwooleCommand::class,
                 Commands\StartFrankenPhpCommand::class,
+                Commands\StartWorkermanCommand::class,
                 Commands\ReloadCommand::class,
                 Commands\StatusCommand::class,
                 Commands\StopCommand::class,

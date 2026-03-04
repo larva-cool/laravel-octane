@@ -2,16 +2,17 @@
 <?php
 
 use Workerman\Connection\TcpConnection;
-use Workerman\Worker as WorkermanWorker;
+use Workerman\Worker;
 
 $basePath = require __DIR__.'/bootstrap.php';
 
-$serverStateFilepath = $_SERVER['argv'][2] ?? $_SERVER['APP_BASE_PATH'].'/storage/logs/octane-server-state.json';
-if (!is_file($serverStateFilepath)) {
-    exit(-1);
-}
-$serverState = json_decode(file_get_contents($serverStateFilepath ?? ''), true);
-WorkermanWorker::$onMasterReload = function () {
+// 读取配置
+$serverState = json_decode(file_get_contents(
+    $serverStateFile = $_SERVER['argv'][1]
+), true)['state'];
+
+// 监听重载
+Worker::$onMasterReload = function () {
     if (function_exists('opcache_get_status')) {
         if ($status = opcache_get_status()) {
             if (isset($status['scripts']) && $scripts = $status['scripts']) {
@@ -23,36 +24,16 @@ WorkermanWorker::$onMasterReload = function () {
     }
 };
 
-WorkermanWorker::$pidFile = $httpConfig['pidFile'];
-WorkermanWorker::$stdoutFile = $httpConfig['stdoutFile'];
-WorkermanWorker::$logFile = $httpConfig['logFile'];
-WorkermanWorker::$daemonize = $serverState['state']['daemon'];
-TcpConnection::$defaultMaxPackageSize = $httpConfig['maxPackageSize'];
-
-/*
-|--------------------------------------------------------------------------
-| Start The Octane Worker
-|--------------------------------------------------------------------------
-|
-| Next we will start the Octane worker, which is a long running process to
-| handle incoming requests to the application. Octane can intercept the
-| incoming requests and proxy them to the Laravel application for us.
-|
-*/
-
-// Windows does not support custom processes.
-if (\DIRECTORY_SEPARATOR === '/') {
-    $process = $workermanConfig['process'] ?? [];
-    foreach ($process as $process_name => $config) {
-        if ($config['enable'] ?? true) {
-            worker_start($process_name, $config);
-        }
-    }
-}
+// 配置
+Worker::$pidFile = $httpConfig['pidFile'];
+//Worker::$stdoutFile = $httpConfig['stdoutFile'];
+//Worker::$logFile = $httpConfig['logFile'];
+//Worker::$daemonize = $serverState['state']['daemon'];
+//TcpConnection::$defaultMaxPackageSize = $httpConfig['maxPackageSize'];
 
 if (!empty($workermanConfig['eventLoopClass'])) {
     if(class_exists($workermanConfig['eventLoopClass'])) {
-        WorkermanWorker::$eventLoopClass = $workermanConfig['eventLoopClass'];
+        Worker::$eventLoopClass = $workermanConfig['eventLoopClass'];
     }
 }
 

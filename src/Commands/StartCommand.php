@@ -130,12 +130,10 @@ class StartCommand extends Command implements SignalableCommandInterface
             '--host' => $this->getHost(),
             '--port' => $this->getPort(),
             '--workers' => $this->option('workers') ?: config('octane.workers', 'auto'),
+            '--task-workers' => $this->option('task-workers') ?: config('octane.task_workers', 'auto'),
             '--max-requests' => $this->option('max-requests') ?: config('octane.max_requests', 500),
-            '--https' => $this->option('https'),
-            '--http-redirect' => $this->option('http-redirect'),
             '--watch' => $this->option('watch'),
             '--poll' => $this->option('poll'),
-            '--log-level' => $this->option('log-level'),
         ]);
     }
 

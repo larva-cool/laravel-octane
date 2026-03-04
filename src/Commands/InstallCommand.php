@@ -138,7 +138,7 @@ class InstallCommand extends Command
     public function installWorkermanServer()
     {
         if (! $this->ensureWorkermanPackageIsInstalled()) {
-            $this->components->warn('The Workerman extension is missing.');
+            $this->components->warn('The Workerman package is missing.');
         }
 
         return true;

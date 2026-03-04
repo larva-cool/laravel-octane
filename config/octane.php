@@ -34,7 +34,7 @@ return [
     | when starting, restarting, or stopping your server via the CLI. You
     | are free to change this to the supported server of your choosing.
     |
-    | Supported: "roadrunner", "swoole", "frankenphp"
+    | Supported: "roadrunner", "swoole", "frankenphp", "workerman"
     |
     */
 
@@ -221,4 +221,43 @@ return [
 
     'max_execution_time' => 30,
 
+    /*
+    |--------------------------------------------------------------------------
+    | Workerman Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure the Workerman server settings. These settings control
+    | the behavior of the Workerman server, including the HTTP server and
+    | any custom processes you may define.
+    |
+    */
+
+    'workerman' => [
+        'memory_limit' => env('OCTANE_WORKER_MEMORY_LIMIT', '128M'),
+        'http' => [
+            'workers' => env('OCTANE_WORKERS', 4),
+            'pidFile' => storage_path('logs/workerman.pid'),
+            'stdoutFile' => storage_path('logs/workerman.stdout.log'),
+            'logFile' => storage_path('logs/workerman.log'),
+            'maxPackageSize' => 10 * 1024 * 1024,
+        ],
+        'process' => [
+            // Example custom process
+            // 'example' => [
+            //     'enable' => true,
+            //     'count' => 1,
+            //     'onWorkerStart' => function () {
+            //         // Custom logic when worker starts
+            //     },
+            //     'onMessage' => function ($connection, $data) {
+            //         // Custom logic when receiving message
+            //     },
+            //     'onWorkerStop' => function () {
+            //         // Custom logic when worker stops
+            //     },
+            // ],
+        ],
+    ],
+
 ];
+
